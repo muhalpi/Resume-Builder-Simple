@@ -234,7 +234,19 @@ export default function CVForm() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                !(e.target instanceof HTMLTextAreaElement) &&
+                activeStep < STEPS.length - 1
+              ) {
+                e.preventDefault();
+              }
+            }}
+            className="space-y-8"
+          >
             <Card className="border-border/50 shadow-sm">
               <CardHeader className="bg-muted/30 border-b border-border/50 pb-4">
                 <CardTitle>{STEPS[activeStep].title}</CardTitle>
