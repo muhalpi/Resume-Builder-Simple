@@ -42,8 +42,14 @@ const formSchema = z.object({
   summary: z.string().min(10, "Summary must be at least 10 characters"),
   skills: z.string().min(1, "Skills are required"), // We'll split this by comma for the API
   languages: z.string().optional(), // We'll split this by comma for the API
-  linkedinUrl: z.string().url("Invalid URL").optional().or(z.literal("")).nullable(),
-  portfolioUrl: z.string().url("Invalid URL").optional().or(z.literal("")).nullable(),
+  linkedinUrl: z.string().optional().or(z.literal("")).nullable().refine((val) => {
+    if (!val) return true;
+    try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
+  }, "URL tidak valid"),
+  portfolioUrl: z.string().optional().or(z.literal("")).nullable().refine((val) => {
+    if (!val) return true;
+    try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
+  }, "URL tidak valid"),
   workExperience: z.array(workExperienceSchema),
   education: z.array(educationSchema),
 });
@@ -125,9 +131,16 @@ export default function CVForm() {
     }
   }, [initialData, form]);
 
+  const normalizeUrl = (url: string | null | undefined) => {
+    if (!url) return url;
+    return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  };
+
   const onSubmit = async (values: FormValues) => {
     const apiData = {
       ...values,
+      linkedinUrl: normalizeUrl(values.linkedinUrl),
+      portfolioUrl: normalizeUrl(values.portfolioUrl),
       skills: values.skills.split(",").map(s => s.trim()).filter(Boolean),
       languages: values.languages ? values.languages.split(",").map(s => s.trim()).filter(Boolean) : [],
     };
