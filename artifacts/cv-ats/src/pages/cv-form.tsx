@@ -777,6 +777,9 @@ export default function CVForm() {
                                 <div key={index} className="rounded-lg border p-4">
                                   <p className="font-medium">{item?.degree || "-"}{item?.field ? ` · ${item.field}` : ""}</p>
                                   <p className="text-sm text-muted-foreground">{item?.institution || "-"}</p>
+                                  {item?.gpa && (
+                                    <p className="text-sm text-muted-foreground">IPK: {item.gpa}</p>
+                                  )}
                                   <p className="text-sm text-muted-foreground">
                                     {item?.startDate || "-"} {item?.endDate ? ` - ${item.endDate}` : item?.isCurrent ? " - Present" : ""}
                                   </p>
