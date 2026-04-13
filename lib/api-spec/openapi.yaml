@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CV ATS Generator API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: cv
+    description: CV operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,143 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /cv:
+    get:
+      operationId: listCVs
+      tags: [cv]
+      summary: List all CVs
+      responses:
+        "200":
+          description: List of CVs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CVSummary"
+    post:
+      operationId: createCV
+      tags: [cv]
+      summary: Create a new CV
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCVBody"
+      responses:
+        "201":
+          description: CV created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CV"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /cv/{id}:
+    get:
+      operationId: getCV
+      tags: [cv]
+      summary: Get a CV by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: CV details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CV"
+        "404":
+          description: CV not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateCV
+      tags: [cv]
+      summary: Update a CV
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCVBody"
+      responses:
+        "200":
+          description: CV updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CV"
+        "404":
+          description: CV not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteCV
+      tags: [cv]
+      summary: Delete a CV
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: CV deleted
+        "404":
+          description: CV not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /cv/{id}/html:
+    get:
+      operationId: getCVHtml
+      tags: [cv]
+      summary: Get CV as HTML for printing/downloading
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: HTML representation of the CV
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CVHtml"
+        "404":
+          description: CV not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +173,222 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    WorkExperience:
+      type: object
+      properties:
+        company:
+          type: string
+        position:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: ["string", "null"]
+        isCurrent:
+          type: boolean
+        description:
+          type: string
+      required:
+        - company
+        - position
+        - startDate
+        - isCurrent
+        - description
+
+    Education:
+      type: object
+      properties:
+        institution:
+          type: string
+        degree:
+          type: string
+        field:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: ["string", "null"]
+        isCurrent:
+          type: boolean
+        gpa:
+          type: ["string", "null"]
+      required:
+        - institution
+        - degree
+        - field
+        - startDate
+        - isCurrent
+
+    CVSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        jobTitle:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - fullName
+        - email
+        - jobTitle
+        - createdAt
+        - updatedAt
+
+    CV:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        jobTitle:
+          type: string
+        summary:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        languages:
+          type: array
+          items:
+            type: string
+        workExperience:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkExperience"
+        education:
+          type: array
+          items:
+            $ref: "#/components/schemas/Education"
+        linkedinUrl:
+          type: ["string", "null"]
+        portfolioUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - fullName
+        - email
+        - jobTitle
+        - summary
+        - skills
+        - languages
+        - workExperience
+        - education
+        - createdAt
+        - updatedAt
+
+    CreateCVBody:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        jobTitle:
+          type: string
+        summary:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        languages:
+          type: array
+          items:
+            type: string
+        workExperience:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkExperience"
+        education:
+          type: array
+          items:
+            $ref: "#/components/schemas/Education"
+        linkedinUrl:
+          type: ["string", "null"]
+        portfolioUrl:
+          type: ["string", "null"]
+      required:
+        - fullName
+        - email
+        - jobTitle
+        - summary
+        - skills
+        - languages
+        - workExperience
+        - education
+
+    UpdateCVBody:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        jobTitle:
+          type: string
+        summary:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        languages:
+          type: array
+          items:
+            type: string
+        workExperience:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkExperience"
+        education:
+          type: array
+          items:
+            $ref: "#/components/schemas/Education"
+        linkedinUrl:
+          type: ["string", "null"]
+        portfolioUrl:
+          type: ["string", "null"]
+
+    CVHtml:
+      type: object
+      properties:
+        html:
+          type: string
+      required:
+        - html
