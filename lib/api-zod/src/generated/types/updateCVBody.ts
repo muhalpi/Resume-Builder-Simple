@@ -28,4 +28,6 @@ export interface UpdateCVBody {
   linkedinUrl?: string | null;
   /** @nullable */
   portfolioUrl?: string | null;
+  /** @nullable */
+  cvLanguage?: string | null;
 }

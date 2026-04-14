@@ -28,6 +28,8 @@ export interface Cv {
   linkedinUrl?: string | null;
   /** @nullable */
   portfolioUrl?: string | null;
+  /** @nullable */
+  cvLanguage?: string | null;
   createdAt: string;
   updatedAt: string;
 }

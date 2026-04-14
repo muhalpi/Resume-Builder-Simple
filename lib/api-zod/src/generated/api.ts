@@ -78,6 +78,7 @@ export const CreateCVBody = zod.object({
     .nullish(),
   linkedinUrl: zod.string().nullish(),
   portfolioUrl: zod.string().nullish(),
+  cvLanguage: zod.string().nullish(),
 });
 
 /**
@@ -133,6 +134,7 @@ export const GetCVResponse = zod.object({
   ),
   linkedinUrl: zod.string().nullish(),
   portfolioUrl: zod.string().nullish(),
+  cvLanguage: zod.string().nullish(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
 });
@@ -195,6 +197,7 @@ export const UpdateCVBody = zod.object({
     .nullish(),
   linkedinUrl: zod.string().nullish(),
   portfolioUrl: zod.string().nullish(),
+  cvLanguage: zod.string().nullish(),
 });
 
 export const UpdateCVResponse = zod.object({
@@ -243,6 +246,7 @@ export const UpdateCVResponse = zod.object({
   ),
   linkedinUrl: zod.string().nullish(),
   portfolioUrl: zod.string().nullish(),
+  cvLanguage: zod.string().nullish(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
 });

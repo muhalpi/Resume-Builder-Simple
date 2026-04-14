@@ -25,6 +25,7 @@ export interface PreviewData {
   languages?: string;
   linkedinUrl?: string | null;
   portfolioUrl?: string | null;
+  cvLanguage?: string | null;
   workExperience: {
     company: string;
     position: string;
@@ -52,6 +53,25 @@ export interface PreviewData {
     }[];
   }[];
 }
+
+const CV_LABELS = {
+  en: {
+    summary: "Professional Summary",
+    experience: "Work Experience",
+    education: "Education",
+    skills: "Skills",
+    languages: "Languages",
+    present: "Present",
+  },
+  id: {
+    summary: "Ringkasan Profesional",
+    experience: "Pengalaman Kerja",
+    education: "Pendidikan",
+    skills: "Keahlian",
+    languages: "Bahasa",
+    present: "Sekarang",
+  },
+} as const;
 
 const CV_STYLES = `
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -94,8 +114,11 @@ const CV_STYLES = `
 `;
 
 export function generateCVPreviewHtml(data: PreviewData): string {
+  const lang = (data.cvLanguage === "id" ? "id" : "en") as "en" | "id";
+  const labels = CV_LABELS[lang];
+
   const skills = data.skills.split(',').map(s => s.trim()).filter(Boolean);
-  const languages = data.languages ? data.languages.split(',').map(s => s.trim()).filter(Boolean) : [];
+  const languagesList = data.languages ? data.languages.split(',').map(s => s.trim()).filter(Boolean) : [];
 
   const workExpHtml = data.workExperience
     .filter(exp => exp.company || exp.position)
@@ -106,7 +129,7 @@ export function generateCVPreviewHtml(data: PreviewData): string {
             <div class="entry-title">${escapeHtml(exp.position || '')}</div>
             <div class="entry-subtitle">${escapeHtml(exp.company || '')}</div>
           </div>
-          <div class="entry-date">${escapeHtml(exp.startDate || '')}${exp.startDate ? ' – ' : ''}${exp.isCurrent ? 'Present' : escapeHtml(exp.endDate || '')}</div>
+          <div class="entry-date">${escapeHtml(exp.startDate || '')}${exp.startDate ? ' – ' : ''}${exp.isCurrent ? labels.present : escapeHtml(exp.endDate || '')}</div>
         </div>
         ${exp.description ? `
         <ul class="entry-desc">
@@ -125,7 +148,7 @@ export function generateCVPreviewHtml(data: PreviewData): string {
             <div class="entry-subtitle">${escapeHtml(edu.institution || '')}</div>
             ${edu.gpa ? `<div class="entry-gpa">GPA: ${escapeHtml(edu.gpa)}</div>` : ''}
           </div>
-          <div class="entry-date">${escapeHtml(edu.startDate || '')}${edu.startDate ? ' – ' : ''}${edu.isCurrent ? 'Present' : escapeHtml(edu.endDate || '')}</div>
+          <div class="entry-date">${escapeHtml(edu.startDate || '')}${edu.startDate ? ' – ' : ''}${edu.isCurrent ? labels.present : escapeHtml(edu.endDate || '')}</div>
         </div>
       </div>
     `).join('');
@@ -161,7 +184,7 @@ export function generateCVPreviewHtml(data: PreviewData): string {
     .join('');
 
   const skillsHtml = skills.map(s => `<span class="tag">${escapeHtml(s)}</span>`).join('');
-  const languagesHtml = languages.map(l => `<span class="tag">${escapeHtml(l)}</span>`).join('');
+  const languagesHtml = languagesList.map(l => `<span class="tag">${escapeHtml(l)}</span>`).join('');
 
   const linksHtml = [
     data.linkedinUrl ? `<a href="${escapeHtml(normalizeUrl(data.linkedinUrl))}" class="contact-link">${escapeHtml(normalizeUrlDisplay(data.linkedinUrl))}</a>` : '',
@@ -169,7 +192,7 @@ export function generateCVPreviewHtml(data: PreviewData): string {
   ].filter(Boolean).join(' · ');
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
 <meta charset="UTF-8">
 <style>${CV_STYLES}</style>
@@ -189,19 +212,19 @@ export function generateCVPreviewHtml(data: PreviewData): string {
 
   ${data.summary ? `
   <section>
-    <h2>Professional Summary</h2>
+    <h2>${labels.summary}</h2>
     <div class="summary">${escapeHtml(data.summary).replace(/\n/g, '<br>')}</div>
   </section>` : ''}
 
   ${workExpHtml ? `
   <section>
-    <h2>Work Experience</h2>
+    <h2>${labels.experience}</h2>
     ${workExpHtml}
   </section>` : ''}
 
   ${educationHtml ? `
   <section>
-    <h2>Education</h2>
+    <h2>${labels.education}</h2>
     ${educationHtml}
   </section>` : ''}
 
@@ -209,13 +232,13 @@ export function generateCVPreviewHtml(data: PreviewData): string {
 
   ${skillsHtml ? `
   <section>
-    <h2>Skills</h2>
+    <h2>${labels.skills}</h2>
     <div class="tags">${skillsHtml}</div>
   </section>` : ''}
 
   ${languagesHtml ? `
   <section>
-    <h2>Languages</h2>
+    <h2>${labels.languages}</h2>
     <div class="tags">${languagesHtml}</div>
   </section>` : ''}
 </div>

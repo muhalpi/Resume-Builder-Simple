@@ -55,6 +55,7 @@ router.post("/cv", async (req, res): Promise<void> => {
       extraSections: data.extraSections ?? [],
       linkedinUrl: data.linkedinUrl ?? null,
       portfolioUrl: data.portfolioUrl ?? null,
+      cvLanguage: data.cvLanguage ?? "en",
     }).returning();
     cv = inserted;
   } catch (err: unknown) {
@@ -117,6 +118,7 @@ router.patch("/cv/:id", async (req, res): Promise<void> => {
   if (data.extraSections !== undefined) updateData.extraSections = data.extraSections ?? [];
   if (data.linkedinUrl !== undefined) updateData.linkedinUrl = data.linkedinUrl;
   if (data.portfolioUrl !== undefined) updateData.portfolioUrl = data.portfolioUrl;
+  if (data.cvLanguage !== undefined) updateData.cvLanguage = data.cvLanguage;
 
   const [cv] = await db
     .update(cvsTable)
@@ -181,7 +183,29 @@ function serializeCV(cv: typeof cvsTable.$inferSelect) {
   };
 }
 
+const CV_LABELS = {
+  en: {
+    summary: "Professional Summary",
+    experience: "Work Experience",
+    education: "Education",
+    skills: "Skills",
+    languages: "Languages",
+    present: "Present",
+  },
+  id: {
+    summary: "Ringkasan Profesional",
+    experience: "Pengalaman Kerja",
+    education: "Pendidikan",
+    skills: "Keahlian",
+    languages: "Bahasa",
+    present: "Sekarang",
+  },
+} as const;
+
 function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
+  const lang = (cv.cvLanguage === "id" ? "id" : "en") as "en" | "id";
+  const labels = CV_LABELS[lang];
+
   const extraSectionsHtml = (cv.extraSections as { sectionTitle: string; entries: { title: string; subtitle?: string | null; date?: string | null; description?: string | null }[] }[] | null ?? [])
     .filter(sec => sec.entries.length > 0)
     .map(sec => `
@@ -213,7 +237,7 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
             <div class="entry-title">${escapeHtml(exp.position)}</div>
             <div class="entry-subtitle">${escapeHtml(exp.company)}</div>
           </div>
-          <div class="entry-date">${escapeHtml(exp.startDate)} – ${exp.isCurrent ? 'Present' : escapeHtml(exp.endDate ?? '')}</div>
+          <div class="entry-date">${escapeHtml(exp.startDate)} – ${exp.isCurrent ? labels.present : escapeHtml(exp.endDate ?? '')}</div>
         </div>
         <ul class="entry-desc">
           ${exp.description
@@ -235,7 +259,7 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
             <div class="entry-subtitle">${escapeHtml(edu.institution)}</div>
             ${edu.gpa ? `<div class="entry-gpa">GPA: ${escapeHtml(edu.gpa)}</div>` : ''}
           </div>
-          <div class="entry-date">${escapeHtml(edu.startDate)} – ${edu.isCurrent ? 'Present' : escapeHtml(edu.endDate ?? '')}</div>
+          <div class="entry-date">${escapeHtml(edu.startDate)} – ${edu.isCurrent ? labels.present : escapeHtml(edu.endDate ?? '')}</div>
         </div>
       </div>
     `).join('');
@@ -250,7 +274,7 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
   ].filter(Boolean).join(' · ');
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -313,21 +337,21 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
 
   ${cv.summary ? `
   <section>
-    <h2>Professional Summary</h2>
+    <h2>${labels.summary}</h2>
     <div class="summary">${escapeHtml(cv.summary).replace(/\n/g, '<br>')}</div>
   </section>
   ` : ''}
 
   ${(cv.workExperience as unknown[]).length > 0 ? `
   <section>
-    <h2>Work Experience</h2>
+    <h2>${labels.experience}</h2>
     ${workExpHtml}
   </section>
   ` : ''}
 
   ${(cv.education as unknown[]).length > 0 ? `
   <section>
-    <h2>Education</h2>
+    <h2>${labels.education}</h2>
     ${educationHtml}
   </section>
   ` : ''}
@@ -336,14 +360,14 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
 
   ${(cv.skills as string[]).length > 0 ? `
   <section>
-    <h2>Skills</h2>
+    <h2>${labels.skills}</h2>
     <div class="tags">${skills}</div>
   </section>
   ` : ''}
 
   ${(cv.languages as string[]).length > 0 ? `
   <section>
-    <h2>Languages</h2>
+    <h2>${labels.languages}</h2>
     <div class="tags">${languages}</div>
   </section>
   ` : ''}

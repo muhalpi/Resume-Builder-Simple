@@ -318,6 +318,8 @@ components:
           type: ["string", "null"]
         portfolioUrl:
           type: ["string", "null"]
+        cvLanguage:
+          type: ["string", "null"]
         createdAt:
           type: string
         updatedAt:
@@ -375,6 +377,8 @@ components:
           type: ["string", "null"]
         portfolioUrl:
           type: ["string", "null"]
+        cvLanguage:
+          type: ["string", "null"]
       required:
         - fullName
         - email
@@ -423,6 +427,8 @@ components:
         linkedinUrl:
           type: ["string", "null"]
         portfolioUrl:
+          type: ["string", "null"]
+        cvLanguage:
           type: ["string", "null"]
 
     CVHtml:

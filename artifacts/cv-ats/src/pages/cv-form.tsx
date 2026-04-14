@@ -66,6 +66,7 @@ function makeSchema(v: Translations["cvForm"]["validation"]) {
       if (!val) return true;
       try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
     }, v.invalidUrl),
+    cvLanguage: z.enum(["en", "id"]).default("en"),
     workExperience: z.array(workExperienceSchema),
     education: z.array(educationSchema),
     extraSections: z.array(extraSectionSchema),
@@ -256,6 +257,7 @@ export default function CVForm() {
       languages: "",
       linkedinUrl: "",
       portfolioUrl: "",
+      cvLanguage: "en" as "en" | "id",
       workExperience: [],
       education: [],
       extraSections: [],
@@ -290,6 +292,7 @@ export default function CVForm() {
         languages: initialData.languages ? initialData.languages.join(", ") : "",
         linkedinUrl: initialData.linkedinUrl || "",
         portfolioUrl: initialData.portfolioUrl || "",
+        cvLanguage: ((initialData.cvLanguage === "id" ? "id" : "en") as "en" | "id"),
         workExperience: initialData.workExperience || [],
         education: initialData.education || [],
         extraSections: (initialData.extraSections as { sectionTitle: string; entries: { title: string; subtitle?: string | null; date?: string | null; description?: string | null }[] }[]) || [],
@@ -309,6 +312,7 @@ export default function CVForm() {
       portfolioUrl: normalizeUrl(values.portfolioUrl),
       skills: values.skills.split(",").map(s => s.trim()).filter(Boolean),
       languages: values.languages ? values.languages.split(",").map(s => s.trim()).filter(Boolean) : [],
+      cvLanguage: values.cvLanguage,
     };
 
     try {
@@ -332,7 +336,7 @@ export default function CVForm() {
 
   const validateStep = async (stepIndex: number) => {
     let fieldsToValidate: (keyof FormValues)[] = [];
-    if (stepIndex === 0) fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl"];
+    if (stepIndex === 0) fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl", "cvLanguage"];
     else if (stepIndex === 1) fieldsToValidate = ["summary", "skills", "languages"];
     else if (stepIndex === 2) fieldsToValidate = ["workExperience"];
     else if (stepIndex === 3) fieldsToValidate = ["education"];
@@ -362,7 +366,7 @@ export default function CVForm() {
     [
       watchedValues.fullName, watchedValues.email, watchedValues.phone, watchedValues.location,
       watchedValues.jobTitle, watchedValues.summary, watchedValues.skills, watchedValues.languages,
-      watchedValues.linkedinUrl, watchedValues.portfolioUrl,
+      watchedValues.linkedinUrl, watchedValues.portfolioUrl, watchedValues.cvLanguage,
       JSON.stringify(watchedValues.workExperience), JSON.stringify(watchedValues.education),
       JSON.stringify(watchedValues.extraSections),
     ]
@@ -597,6 +601,50 @@ export default function CVForm() {
                         <FormControl>
                           <Input placeholder="https://johndoe.com" {...field} value={field.value || ""} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="cvLanguage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{f.cvLanguageLabel}</FormLabel>
+                        <FormDescription>{f.cvLanguageHint}</FormDescription>
+                        <div className="flex gap-3 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => field.onChange("en")}
+                            className={`flex-1 flex items-center gap-3 rounded-lg border-2 p-3 text-left transition-colors cursor-pointer ${
+                              field.value === "en"
+                                ? "border-primary bg-primary/5 text-primary"
+                                : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                            }`}
+                          >
+                            <span className="text-xl">🇬🇧</span>
+                            <div>
+                              <p className="text-sm font-semibold">{f.cvLanguageEn}</p>
+                              <p className="text-xs opacity-70">Work Experience · Education · Skills</p>
+                            </div>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => field.onChange("id")}
+                            className={`flex-1 flex items-center gap-3 rounded-lg border-2 p-3 text-left transition-colors cursor-pointer ${
+                              field.value === "id"
+                                ? "border-primary bg-primary/5 text-primary"
+                                : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                            }`}
+                          >
+                            <span className="text-xl">🇮🇩</span>
+                            <div>
+                              <p className="text-sm font-semibold">{f.cvLanguageId}</p>
+                              <p className="text-xs opacity-70">Pengalaman Kerja · Pendidikan · Keahlian</p>
+                            </div>
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
