@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useLocation } from "wouter";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, type Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useCreateCV, useUpdateCV, useGetCV, getGetCVQueryKey } from "@workspace/api-client-react";
@@ -88,6 +88,137 @@ const PRESET_SECTIONS = [
   "Kegiatan Sukarela",
   "Kursus Online",
 ];
+
+function ExtraSectionItem({
+  sectionIndex,
+  control,
+  onRemove,
+}: {
+  sectionIndex: number;
+  control: Control<FormValues>;
+  onRemove: () => void;
+}) {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: `extraSections.${sectionIndex}.entries`,
+  });
+
+  return (
+    <Card className="relative border-border shadow-sm">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="absolute right-2 top-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+        onClick={onRemove}
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+      <CardHeader className="pb-3 pr-12">
+        <FormField
+          control={control}
+          name={`extraSections.${sectionIndex}.sectionTitle`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nama Seksi *</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: Sertifikasi" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {fields.map((field, entryIndex) => (
+          <Card key={field.id} className="relative bg-muted/20 shadow-none">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={() => remove(entryIndex)}
+              disabled={fields.length === 1}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+            <CardContent className="pt-6 pr-12 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={control}
+                  name={`extraSections.${sectionIndex}.entries.${entryIndex}.title`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Judul *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="AWS Certified Cloud Practitioner" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name={`extraSections.${sectionIndex}.entries.${entryIndex}.subtitle`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subjudul</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Amazon Web Services" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={control}
+                name={`extraSections.${sectionIndex}.entries.${entryIndex}.date`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tanggal / Periode</FormLabel>
+                    <FormControl>
+                      <Input placeholder="2024" {...field} value={field.value || ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name={`extraSections.${sectionIndex}.entries.${entryIndex}.description`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Deskripsi</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Tambahkan poin singkat yang relevan dengan posisi yang dilamar."
+                        className="h-24 resize-none"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormDescription>Gunakan baris baru untuk membuat beberapa bullet di CV.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+        ))}
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full border-dashed"
+          onClick={() => append({ title: "", subtitle: "", date: "", description: "" })}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Tambah Item
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function CVForm() {
   const params = useParams();
@@ -243,6 +374,7 @@ export default function CVForm() {
       watchedValues.jobTitle, watchedValues.summary, watchedValues.skills, watchedValues.languages,
       watchedValues.linkedinUrl, watchedValues.portfolioUrl,
       JSON.stringify(watchedValues.workExperience), JSON.stringify(watchedValues.education),
+      JSON.stringify(watchedValues.extraSections),
     ]
   );
 
@@ -886,6 +1018,33 @@ export default function CVForm() {
                             })
                           ) : (
                             <p className="text-sm text-muted-foreground">No education added yet.</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-muted-foreground">Seksi Tambahan</p>
+                        <div className="mt-2 space-y-3">
+                          {sectionFields.length > 0 ? (
+                            sectionFields.map((_, sectionIndex) => {
+                              const section = form.watch(`extraSections.${sectionIndex}`);
+                              return (
+                                <div key={sectionIndex} className="rounded-lg border p-4">
+                                  <p className="font-medium">{section?.sectionTitle || "-"}</p>
+                                  <div className="mt-2 space-y-2 text-sm text-muted-foreground">
+                                    {section?.entries?.length ? section.entries.map((entry, entryIndex) => (
+                                      <div key={entryIndex}>
+                                        <p className="font-medium text-foreground">{entry.title || "-"}</p>
+                                        <p>{[entry.subtitle, entry.date].filter(Boolean).join(" · ") || "-"}</p>
+                                        {entry.description && <p className="whitespace-pre-wrap">{entry.description}</p>}
+                                      </div>
+                                    )) : <p>Belum ada item.</p>}
+                                  </div>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <p className="text-sm text-muted-foreground">Tidak ada seksi tambahan.</p>
                           )}
                         </div>
                       </div>

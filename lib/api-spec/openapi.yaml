@@ -227,6 +227,33 @@ components:
         - startDate
         - isCurrent
 
+    ExtraSectionEntry:
+      type: object
+      properties:
+        title:
+          type: string
+        subtitle:
+          type: ["string", "null"]
+        date:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+      required:
+        - title
+
+    ExtraSection:
+      type: object
+      properties:
+        sectionTitle:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExtraSectionEntry"
+      required:
+        - sectionTitle
+        - entries
+
     CVSummary:
       type: object
       properties:
@@ -283,6 +310,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Education"
+        extraSections:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExtraSection"
         linkedinUrl:
           type: ["string", "null"]
         portfolioUrl:
@@ -301,6 +332,7 @@ components:
         - languages
         - workExperience
         - education
+        - extraSections
         - createdAt
         - updatedAt
 
@@ -335,6 +367,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Education"
+        extraSections:
+          type: ["array", "null"]
+          items:
+            $ref: "#/components/schemas/ExtraSection"
         linkedinUrl:
           type: ["string", "null"]
         portfolioUrl:
@@ -380,6 +416,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Education"
+        extraSections:
+          type: ["array", "null"]
+          items:
+            $ref: "#/components/schemas/ExtraSection"
         linkedinUrl:
           type: ["string", "null"]
         portfolioUrl:

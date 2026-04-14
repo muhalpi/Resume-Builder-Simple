@@ -22,6 +22,7 @@ export interface UpdateCVBody {
   languages?: string[];
   workExperience?: WorkExperience[];
   education?: Education[];
+  /** @nullable */
   extraSections?: ExtraSection[] | null;
   /** @nullable */
   linkedinUrl?: string | null;

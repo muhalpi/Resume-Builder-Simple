@@ -23,7 +23,7 @@ export interface Cv {
   languages: string[];
   workExperience: WorkExperience[];
   education: Education[];
-  extraSections?: ExtraSection[] | null;
+  extraSections: ExtraSection[];
   /** @nullable */
   linkedinUrl?: string | null;
   /** @nullable */

@@ -35,6 +35,21 @@ export interface Education {
   gpa?: string | null;
 }
 
+export interface ExtraSectionEntry {
+  title: string;
+  /** @nullable */
+  subtitle?: string | null;
+  /** @nullable */
+  date?: string | null;
+  /** @nullable */
+  description?: string | null;
+}
+
+export interface ExtraSection {
+  sectionTitle: string;
+  entries: ExtraSectionEntry[];
+}
+
 export interface CVSummary {
   id: number;
   fullName: string;
@@ -58,6 +73,7 @@ export interface Cv {
   languages: string[];
   workExperience: WorkExperience[];
   education: Education[];
+  extraSections: ExtraSection[];
   /** @nullable */
   linkedinUrl?: string | null;
   /** @nullable */
@@ -80,6 +96,8 @@ export interface CreateCVBody {
   workExperience: WorkExperience[];
   education: Education[];
   /** @nullable */
+  extraSections?: ExtraSection[] | null;
+  /** @nullable */
   linkedinUrl?: string | null;
   /** @nullable */
   portfolioUrl?: string | null;
@@ -98,6 +116,8 @@ export interface UpdateCVBody {
   languages?: string[];
   workExperience?: WorkExperience[];
   education?: Education[];
+  /** @nullable */
+  extraSections?: ExtraSection[] | null;
   /** @nullable */
   linkedinUrl?: string | null;
   /** @nullable */

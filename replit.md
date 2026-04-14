@@ -20,8 +20,9 @@ pnpm workspace monorepo using TypeScript. This is a **CV ATS Generator** web app
 
 ## Features
 
-- Multi-step CV builder form (Personal Info, Summary & Skills, Work Experience, Education)
+- Multi-step CV builder form (Personal Info, Summary & Skills, Work Experience, Education, Extra Sections, Review)
 - ATS-optimized CV preview with clean HTML output
+- Custom extra CV sections for certifications, awards, organizations, projects, training, publications, and other ATS-relevant items
 - Print/Download as PDF via browser print
 - Save and manage multiple CVs
 - Edit existing CVs
@@ -55,6 +56,7 @@ pnpm workspace monorepo using TypeScript. This is a **CV ATS Generator** web app
 
 ## DB Schema
 
-- `cvs` table: id, fullName, email, phone, location, jobTitle, summary, skills (jsonb), languages (jsonb), workExperience (jsonb), education (jsonb), linkedinUrl, portfolioUrl, createdAt, updatedAt
+- Development PostgreSQL database is provisioned and synced with Drizzle schema.
+- `cvs` table: id, fullName, email, phone, location, jobTitle, summary, skills (jsonb), languages (jsonb), workExperience (jsonb), education (jsonb), extraSections (jsonb), linkedinUrl, portfolioUrl, createdAt, updatedAt
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.

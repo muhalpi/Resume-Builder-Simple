@@ -61,19 +61,21 @@ export const CreateCVBody = zod.object({
       gpa: zod.string().nullish(),
     }),
   ),
-  extraSections: zod.array(
-    zod.object({
-      sectionTitle: zod.string(),
-      entries: zod.array(
-        zod.object({
-          title: zod.string(),
-          subtitle: zod.string().nullish(),
-          date: zod.string().nullish(),
-          description: zod.string().nullish(),
-        }),
-      ),
-    }),
-  ).nullish(),
+  extraSections: zod
+    .array(
+      zod.object({
+        sectionTitle: zod.string(),
+        entries: zod.array(
+          zod.object({
+            title: zod.string(),
+            subtitle: zod.string().nullish(),
+            date: zod.string().nullish(),
+            description: zod.string().nullish(),
+          }),
+        ),
+      }),
+    )
+    .nullish(),
   linkedinUrl: zod.string().nullish(),
   portfolioUrl: zod.string().nullish(),
 });
@@ -114,6 +116,19 @@ export const GetCVResponse = zod.object({
       endDate: zod.string().nullish(),
       isCurrent: zod.boolean(),
       gpa: zod.string().nullish(),
+    }),
+  ),
+  extraSections: zod.array(
+    zod.object({
+      sectionTitle: zod.string(),
+      entries: zod.array(
+        zod.object({
+          title: zod.string(),
+          subtitle: zod.string().nullish(),
+          date: zod.string().nullish(),
+          description: zod.string().nullish(),
+        }),
+      ),
     }),
   ),
   linkedinUrl: zod.string().nullish(),
@@ -163,19 +178,21 @@ export const UpdateCVBody = zod.object({
       }),
     )
     .optional(),
-  extraSections: zod.array(
-    zod.object({
-      sectionTitle: zod.string(),
-      entries: zod.array(
-        zod.object({
-          title: zod.string(),
-          subtitle: zod.string().nullish(),
-          date: zod.string().nullish(),
-          description: zod.string().nullish(),
-        }),
-      ),
-    }),
-  ).nullish(),
+  extraSections: zod
+    .array(
+      zod.object({
+        sectionTitle: zod.string(),
+        entries: zod.array(
+          zod.object({
+            title: zod.string(),
+            subtitle: zod.string().nullish(),
+            date: zod.string().nullish(),
+            description: zod.string().nullish(),
+          }),
+        ),
+      }),
+    )
+    .nullish(),
   linkedinUrl: zod.string().nullish(),
   portfolioUrl: zod.string().nullish(),
 });
@@ -209,6 +226,19 @@ export const UpdateCVResponse = zod.object({
       endDate: zod.string().nullish(),
       isCurrent: zod.boolean(),
       gpa: zod.string().nullish(),
+    }),
+  ),
+  extraSections: zod.array(
+    zod.object({
+      sectionTitle: zod.string(),
+      entries: zod.array(
+        zod.object({
+          title: zod.string(),
+          subtitle: zod.string().nullish(),
+          date: zod.string().nullish(),
+          description: zod.string().nullish(),
+        }),
+      ),
     }),
   ),
   linkedinUrl: zod.string().nullish(),

@@ -42,6 +42,15 @@ export interface PreviewData {
     isCurrent: boolean;
     gpa?: string | null;
   }[];
+  extraSections?: {
+    sectionTitle: string;
+    entries: {
+      title: string;
+      subtitle?: string | null;
+      date?: string | null;
+      description?: string | null;
+    }[];
+  }[];
 }
 
 const CV_STYLES = `
@@ -114,6 +123,36 @@ export function generateCVPreviewHtml(data: PreviewData): string {
       </div>
     `).join('');
 
+  const extraSectionsHtml = (data.extraSections || [])
+    .filter(section => section.sectionTitle || section.entries.some(entry => entry.title || entry.subtitle || entry.description))
+    .map(section => {
+      const entriesHtml = section.entries
+        .filter(entry => entry.title || entry.subtitle || entry.description)
+        .map(entry => `
+          <div class="entry">
+            <div class="entry-header">
+              <div>
+                <div class="entry-title">${escapeHtml(entry.title || '')}</div>
+                ${entry.subtitle ? `<div class="entry-subtitle">${escapeHtml(entry.subtitle)}</div>` : ''}
+              </div>
+              ${entry.date ? `<div class="entry-date">${escapeHtml(entry.date)}</div>` : ''}
+            </div>
+            ${entry.description ? `
+            <ul class="entry-desc">
+              ${entry.description.split(/\n+/).map(l => l.trim()).filter(Boolean).map(l => `<li>${escapeHtml(l)}</li>`).join('')}
+            </ul>` : ''}
+          </div>
+        `).join('');
+
+      return entriesHtml ? `
+        <section>
+          <h2>${escapeHtml(section.sectionTitle || 'Seksi Tambahan')}</h2>
+          ${entriesHtml}
+        </section>
+      ` : '';
+    })
+    .join('');
+
   const skillsHtml = skills.map(s => `<span class="tag">${escapeHtml(s)}</span>`).join('');
   const languagesHtml = languages.map(l => `<span class="tag">${escapeHtml(l)}</span>`).join('');
 
@@ -158,6 +197,8 @@ export function generateCVPreviewHtml(data: PreviewData): string {
     <h2>Pendidikan</h2>
     ${educationHtml}
   </section>` : ''}
+
+  ${extraSectionsHtml}
 
   ${skillsHtml ? `
   <section>
