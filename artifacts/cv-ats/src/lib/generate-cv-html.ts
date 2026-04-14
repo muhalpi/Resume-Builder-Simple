@@ -106,7 +106,7 @@ export function generateCVPreviewHtml(data: PreviewData): string {
             <div class="entry-title">${escapeHtml(exp.position || '')}</div>
             <div class="entry-subtitle">${escapeHtml(exp.company || '')}</div>
           </div>
-          <div class="entry-date">${escapeHtml(exp.startDate || '')}${exp.startDate ? ' – ' : ''}${exp.isCurrent ? 'Sekarang' : escapeHtml(exp.endDate || '')}</div>
+          <div class="entry-date">${escapeHtml(exp.startDate || '')}${exp.startDate ? ' – ' : ''}${exp.isCurrent ? 'Present' : escapeHtml(exp.endDate || '')}</div>
         </div>
         ${exp.description ? `
         <ul class="entry-desc">
@@ -123,9 +123,9 @@ export function generateCVPreviewHtml(data: PreviewData): string {
           <div>
             <div class="entry-title">${escapeHtml(edu.degree || '')}${edu.field ? ` – ${escapeHtml(edu.field)}` : ''}</div>
             <div class="entry-subtitle">${escapeHtml(edu.institution || '')}</div>
-            ${edu.gpa ? `<div class="entry-gpa">IPK: ${escapeHtml(edu.gpa)}</div>` : ''}
+            ${edu.gpa ? `<div class="entry-gpa">GPA: ${escapeHtml(edu.gpa)}</div>` : ''}
           </div>
-          <div class="entry-date">${escapeHtml(edu.startDate || '')}${edu.startDate ? ' – ' : ''}${edu.isCurrent ? 'Sekarang' : escapeHtml(edu.endDate || '')}</div>
+          <div class="entry-date">${escapeHtml(edu.startDate || '')}${edu.startDate ? ' – ' : ''}${edu.isCurrent ? 'Present' : escapeHtml(edu.endDate || '')}</div>
         </div>
       </div>
     `).join('');
@@ -153,7 +153,7 @@ export function generateCVPreviewHtml(data: PreviewData): string {
 
       return entriesHtml ? `
         <section>
-          <h2>${escapeHtml(section.sectionTitle || 'Seksi Tambahan')}</h2>
+          <h2>${escapeHtml(section.sectionTitle || 'Additional Section')}</h2>
           ${entriesHtml}
         </section>
       ` : '';
@@ -169,7 +169,7 @@ export function generateCVPreviewHtml(data: PreviewData): string {
   ].filter(Boolean).join(' · ');
 
   return `<!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <style>${CV_STYLES}</style>
@@ -177,8 +177,8 @@ export function generateCVPreviewHtml(data: PreviewData): string {
 <body>
 <div class="page">
   <div class="header">
-    <div class="name">${escapeHtml(data.fullName || 'Nama Lengkap')}</div>
-    <div class="job-title">${escapeHtml(data.jobTitle || 'Posisi / Jabatan')}</div>
+    <div class="name">${escapeHtml(data.fullName || 'Full Name')}</div>
+    <div class="job-title">${escapeHtml(data.jobTitle || 'Job Title')}</div>
     <div class="contact">
       <span>${escapeHtml(data.email || '')}</span>
       ${data.phone ? `<span>${escapeHtml(data.phone)}</span>` : ''}
@@ -189,19 +189,19 @@ export function generateCVPreviewHtml(data: PreviewData): string {
 
   ${data.summary ? `
   <section>
-    <h2>Ringkasan Profesional</h2>
+    <h2>Professional Summary</h2>
     <div class="summary">${escapeHtml(data.summary).replace(/\n/g, '<br>')}</div>
   </section>` : ''}
 
   ${workExpHtml ? `
   <section>
-    <h2>Pengalaman Kerja</h2>
+    <h2>Work Experience</h2>
     ${workExpHtml}
   </section>` : ''}
 
   ${educationHtml ? `
   <section>
-    <h2>Pendidikan</h2>
+    <h2>Education</h2>
     ${educationHtml}
   </section>` : ''}
 
@@ -209,13 +209,13 @@ export function generateCVPreviewHtml(data: PreviewData): string {
 
   ${skillsHtml ? `
   <section>
-    <h2>Keahlian</h2>
+    <h2>Skills</h2>
     <div class="tags">${skillsHtml}</div>
   </section>` : ''}
 
   ${languagesHtml ? `
   <section>
-    <h2>Bahasa</h2>
+    <h2>Languages</h2>
     <div class="tags">${languagesHtml}</div>
   </section>` : ''}
 </div>

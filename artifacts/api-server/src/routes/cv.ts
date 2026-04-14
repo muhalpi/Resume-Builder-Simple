@@ -203,7 +203,7 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
             <div class="entry-title">${escapeHtml(exp.position)}</div>
             <div class="entry-subtitle">${escapeHtml(exp.company)}</div>
           </div>
-          <div class="entry-date">${escapeHtml(exp.startDate)} – ${exp.isCurrent ? 'Sekarang' : escapeHtml(exp.endDate ?? '')}</div>
+          <div class="entry-date">${escapeHtml(exp.startDate)} – ${exp.isCurrent ? 'Present' : escapeHtml(exp.endDate ?? '')}</div>
         </div>
         <ul class="entry-desc">
           ${exp.description
@@ -223,9 +223,9 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
           <div>
             <div class="entry-title">${escapeHtml(edu.degree)} – ${escapeHtml(edu.field)}</div>
             <div class="entry-subtitle">${escapeHtml(edu.institution)}</div>
-            ${edu.gpa ? `<div class="entry-gpa">IPK: ${escapeHtml(edu.gpa)}</div>` : ''}
+            ${edu.gpa ? `<div class="entry-gpa">GPA: ${escapeHtml(edu.gpa)}</div>` : ''}
           </div>
-          <div class="entry-date">${escapeHtml(edu.startDate)} – ${edu.isCurrent ? 'Sekarang' : escapeHtml(edu.endDate ?? '')}</div>
+          <div class="entry-date">${escapeHtml(edu.startDate)} – ${edu.isCurrent ? 'Present' : escapeHtml(edu.endDate ?? '')}</div>
         </div>
       </div>
     `).join('');
@@ -240,7 +240,7 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
   ].filter(Boolean).join(' · ');
 
   return `<!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -303,21 +303,21 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
 
   ${cv.summary ? `
   <section>
-    <h2>Ringkasan Profesional</h2>
+    <h2>Professional Summary</h2>
     <div class="summary">${escapeHtml(cv.summary).replace(/\n/g, '<br>')}</div>
   </section>
   ` : ''}
 
   ${(cv.workExperience as unknown[]).length > 0 ? `
   <section>
-    <h2>Pengalaman Kerja</h2>
+    <h2>Work Experience</h2>
     ${workExpHtml}
   </section>
   ` : ''}
 
   ${(cv.education as unknown[]).length > 0 ? `
   <section>
-    <h2>Pendidikan</h2>
+    <h2>Education</h2>
     ${educationHtml}
   </section>
   ` : ''}
@@ -326,14 +326,14 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
 
   ${(cv.skills as string[]).length > 0 ? `
   <section>
-    <h2>Keahlian</h2>
+    <h2>Skills</h2>
     <div class="tags">${skills}</div>
   </section>
   ` : ''}
 
   ${(cv.languages as string[]).length > 0 ? `
   <section>
-    <h2>Bahasa</h2>
+    <h2>Languages</h2>
     <div class="tags">${languages}</div>
   </section>
   ` : ''}

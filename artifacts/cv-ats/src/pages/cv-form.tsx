@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, ChevronRight, ChevronLeft, Save, Eye } from "lucide-react";
+import { Loader2, Plus, Trash2, ChevronRight, ChevronLeft, Save, Eye, CheckCircle2, XCircle } from "lucide-react";
 import { generateCVPreviewHtml } from "@/lib/generate-cv-html";
 
 const workExperienceSchema = z.object({
@@ -35,14 +35,14 @@ const educationSchema = z.object({
 });
 
 const extraSectionEntrySchema = z.object({
-  title: z.string().min(1, "Judul wajib diisi"),
+  title: z.string().min(1, "Title is required"),
   subtitle: z.string().optional().nullable(),
   date: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
 });
 
 const extraSectionSchema = z.object({
-  sectionTitle: z.string().min(1, "Nama seksi wajib diisi"),
+  sectionTitle: z.string().min(1, "Section name is required"),
   entries: z.array(extraSectionEntrySchema),
 });
 
@@ -58,11 +58,11 @@ const formSchema = z.object({
   linkedinUrl: z.string().optional().or(z.literal("")).nullable().refine((val) => {
     if (!val) return true;
     try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
-  }, "URL tidak valid"),
+  }, "Invalid URL"),
   portfolioUrl: z.string().optional().or(z.literal("")).nullable().refine((val) => {
     if (!val) return true;
     try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
-  }, "URL tidak valid"),
+  }, "Invalid URL"),
   workExperience: z.array(workExperienceSchema),
   education: z.array(educationSchema),
   extraSections: z.array(extraSectionSchema),
@@ -75,18 +75,18 @@ const STEPS = [
   { id: "summary", title: "Summary & Skills" },
   { id: "experience", title: "Work Experience" },
   { id: "education", title: "Education" },
-  { id: "extra", title: "Seksi Tambahan" },
+  { id: "extra", title: "Extra Sections" },
   { id: "review", title: "Review" },
 ];
 
 const PRESET_SECTIONS = [
-  "Penghargaan",
-  "Pengalaman Organisasi",
-  "Pelatihan & Sertifikasi",
-  "Proyek",
-  "Publikasi",
-  "Kegiatan Sukarela",
-  "Kursus Online",
+  "Awards & Honors",
+  "Organizational Experience",
+  "Training & Certifications",
+  "Projects",
+  "Publications",
+  "Volunteer Work",
+  "Online Courses",
 ];
 
 function ExtraSectionItem({
@@ -120,9 +120,9 @@ function ExtraSectionItem({
           name={`extraSections.${sectionIndex}.sectionTitle`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nama Seksi *</FormLabel>
+              <FormLabel>Section Name *</FormLabel>
               <FormControl>
-                <Input placeholder="Contoh: Sertifikasi" {...field} />
+                <Input placeholder="e.g. Certifications" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -149,7 +149,7 @@ function ExtraSectionItem({
                   name={`extraSections.${sectionIndex}.entries.${entryIndex}.title`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Judul *</FormLabel>
+                      <FormLabel>Title *</FormLabel>
                       <FormControl>
                         <Input placeholder="AWS Certified Cloud Practitioner" {...field} />
                       </FormControl>
@@ -162,7 +162,7 @@ function ExtraSectionItem({
                   name={`extraSections.${sectionIndex}.entries.${entryIndex}.subtitle`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Subjudul</FormLabel>
+                      <FormLabel>Subtitle</FormLabel>
                       <FormControl>
                         <Input placeholder="Amazon Web Services" {...field} value={field.value || ""} />
                       </FormControl>
@@ -176,7 +176,7 @@ function ExtraSectionItem({
                 name={`extraSections.${sectionIndex}.entries.${entryIndex}.date`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tanggal / Periode</FormLabel>
+                    <FormLabel>Date / Period</FormLabel>
                     <FormControl>
                       <Input placeholder="2024" {...field} value={field.value || ""} />
                     </FormControl>
@@ -189,16 +189,16 @@ function ExtraSectionItem({
                 name={`extraSections.${sectionIndex}.entries.${entryIndex}.description`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deskripsi</FormLabel>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Tambahkan poin singkat yang relevan dengan posisi yang dilamar."
+                        placeholder="Add short bullet points relevant to the position you're applying for."
                         className="h-24 resize-none"
                         {...field}
                         value={field.value || ""}
                       />
                     </FormControl>
-                    <FormDescription>Gunakan baris baru untuk membuat beberapa bullet di CV.</FormDescription>
+                    <FormDescription>Each new line becomes a separate bullet point on the CV.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -213,7 +213,7 @@ function ExtraSectionItem({
           onClick={() => append({ title: "", subtitle: "", date: "", description: "" })}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Tambah Item
+          Add Item
         </Button>
       </CardContent>
     </Card>
@@ -458,7 +458,7 @@ export default function CVForm() {
                   {activeStep === 1 && "A brief summary of your background and key skills."}
                   {activeStep === 2 && "Your relevant work history."}
                   {activeStep === 3 && "Your academic background."}
-                  {activeStep === 4 && "Tambahkan seksi opsional seperti penghargaan, sertifikasi, organisasi, dll."}
+                  {activeStep === 4 && "Add optional sections like certifications, projects, awards, or volunteer work."}
                   {activeStep === 5 && "Review everything before saving your CV."}
                 </CardDescription>
               </CardHeader>
@@ -881,7 +881,7 @@ export default function CVForm() {
                 {/* ─── Step 4: Extra Sections ─── */}
                 <div className={activeStep === 4 ? "space-y-5" : "hidden"}>
                   <div>
-                    <p className="text-sm font-medium mb-3 text-muted-foreground">Pilih seksi yang ingin ditambahkan:</p>
+                    <p className="text-sm font-medium mb-3 text-muted-foreground">Choose a section to add:</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {PRESET_SECTIONS.map((preset) => (
                         <Button
@@ -902,15 +902,15 @@ export default function CVForm() {
                         onClick={() => appendSection({ sectionTitle: "", entries: [{ title: "", subtitle: "", date: "", description: "" }] })}
                       >
                         <Plus className="h-3.5 w-3.5 mr-2 flex-shrink-0" />
-                        Seksi Kustom
+                        Custom Section
                       </Button>
                     </div>
                   </div>
 
                   {sectionFields.length === 0 && (
                     <div className="text-center py-10 text-muted-foreground border-2 border-dashed rounded-lg">
-                      <p className="text-sm">Klik salah satu pilihan di atas untuk menambahkan seksi tambahan.</p>
-                      <p className="text-xs mt-1">Seksi ini opsional — lewati jika tidak diperlukan.</p>
+                      <p className="text-sm">Click one of the options above to add an extra section.</p>
+                      <p className="text-xs mt-1">This step is optional — skip it if not needed.</p>
                     </div>
                   )}
 
@@ -926,6 +926,57 @@ export default function CVForm() {
 
                 {/* ─── Step 5: Review ─── */}
                 <div className={activeStep === 5 ? "space-y-6" : "hidden"}>
+                  {/* ATS Readiness Checklist */}
+                  {(() => {
+                    const v = form.watch();
+                    const checks = [
+                      { label: "Full name filled in", ok: !!v.fullName?.trim() },
+                      { label: "Job title filled in", ok: !!v.jobTitle?.trim() },
+                      { label: "Email address provided", ok: !!v.email?.trim() },
+                      { label: "Phone number provided", ok: !!v.phone?.trim() },
+                      { label: "Location provided", ok: !!v.location?.trim() },
+                      { label: "Professional summary written", ok: (v.summary?.trim().length ?? 0) >= 50 },
+                      { label: "At least 3 skills listed", ok: v.skills.split(",").map(s => s.trim()).filter(Boolean).length >= 3 },
+                      { label: "At least 1 work experience", ok: v.workExperience.length > 0 },
+                      { label: "Work experience has descriptions", ok: v.workExperience.every(e => e.description?.trim().length > 0) },
+                      { label: "At least 1 education entry", ok: v.education.length > 0 },
+                      { label: "LinkedIn URL provided", ok: !!v.linkedinUrl?.trim() },
+                    ];
+                    const passed = checks.filter(c => c.ok).length;
+                    const total = checks.length;
+                    const pct = Math.round((passed / total) * 100);
+                    const color = pct >= 90 ? "text-green-600" : pct >= 60 ? "text-amber-600" : "text-destructive";
+                    const bgColor = pct >= 90 ? "bg-green-50 border-green-200" : pct >= 60 ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
+                    return (
+                      <Card className={`border shadow-sm ${bgColor}`}>
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-base">ATS Readiness Score</CardTitle>
+                            <span className={`text-2xl font-bold ${color}`}>{pct}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2 mt-1">
+                            <div
+                              className={`h-2 rounded-full transition-all ${pct >= 90 ? "bg-green-500" : pct >= 60 ? "bg-amber-500" : "bg-destructive"}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <CardDescription className="mt-1">{passed}/{total} checks passed — {pct >= 90 ? "Excellent! Your CV is well-optimized." : pct >= 60 ? "Good start. Complete the remaining items to improve your score." : "Fill in more fields to improve your ATS score."}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            {checks.map((c) => (
+                              <li key={c.label} className="flex items-center gap-2 text-sm">
+                                {c.ok
+                                  ? <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                                  : <XCircle className="h-4 w-4 text-muted-foreground/50 shrink-0" />}
+                                <span className={c.ok ? "text-foreground" : "text-muted-foreground"}>{c.label}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    );
+                  })()}
                   <Card className="border-border/50 shadow-sm">
                     <CardContent className="pt-6 space-y-6">
                       <div className="grid gap-4 md:grid-cols-2">
@@ -1015,7 +1066,7 @@ export default function CVForm() {
                                   <p className="font-medium">{item?.degree || "-"}{item?.field ? ` · ${item.field}` : ""}</p>
                                   <p className="text-sm text-muted-foreground">{item?.institution || "-"}</p>
                                   {item?.gpa && (
-                                    <p className="text-sm text-muted-foreground">IPK: {item.gpa}</p>
+                                    <p className="text-sm text-muted-foreground">GPA: {item.gpa}</p>
                                   )}
                                   <p className="text-sm text-muted-foreground">
                                     {item?.startDate || "-"} {item?.endDate ? ` - ${item.endDate}` : item?.isCurrent ? " - Present" : ""}
@@ -1030,7 +1081,7 @@ export default function CVForm() {
                       </div>
 
                       <div>
-                        <p className="text-sm text-muted-foreground">Seksi Tambahan</p>
+                        <p className="text-sm text-muted-foreground">Extra Sections</p>
                         <div className="mt-2 space-y-3">
                           {sectionFields.length > 0 ? (
                             sectionFields.map((_, sectionIndex) => {
@@ -1045,13 +1096,13 @@ export default function CVForm() {
                                         <p>{[entry.subtitle, entry.date].filter(Boolean).join(" · ") || "-"}</p>
                                         {entry.description && <p className="whitespace-pre-wrap">{entry.description}</p>}
                                       </div>
-                                    )) : <p>Belum ada item.</p>}
+                                    )) : <p>No items yet.</p>}
                                   </div>
                                 </div>
                               );
                             })
                           ) : (
-                            <p className="text-sm text-muted-foreground">Tidak ada seksi tambahan.</p>
+                            <p className="text-sm text-muted-foreground">No extra sections added.</p>
                           )}
                         </div>
                       </div>
@@ -1061,7 +1112,7 @@ export default function CVForm() {
               </CardContent>
               <CardFooter className="bg-muted/30 border-t border-border/50 px-5 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="text-xs text-muted-foreground">
-                  Langkah {activeStep + 1} dari {STEPS.length}: {activeStep === STEPS.length - 1 ? "cek ulang lalu simpan CV" : "isi bagian ini lalu lanjutkan"}
+                  Step {activeStep + 1} of {STEPS.length}: {activeStep === STEPS.length - 1 ? "review then save your CV" : "fill in this section to continue"}
                 </div>
                 <div className="flex w-full gap-2 sm:w-auto">
                 <Button 
@@ -1072,12 +1123,12 @@ export default function CVForm() {
                   className="flex-1 sm:flex-none"
                 >
                   <ChevronLeft className="mr-2 h-4 w-4" />
-                  Kembali
+                  Back
                 </Button>
                 
                 {activeStep < STEPS.length - 2 ? (
                   <Button type="button" onClick={nextStep} disabled={isSubmitting} className="flex-1 sm:flex-none">
-                    Lanjut
+                    Next
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : activeStep === STEPS.length - 2 ? (
@@ -1106,12 +1157,12 @@ export default function CVForm() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Menyimpan...
+                        Saving...
                       </>
                     ) : (
                       <>
                         <Save className="mr-2 h-4 w-4" />
-                        Simpan CV
+                        Save CV
                       </>
                     )}
                   </Button>
@@ -1132,7 +1183,7 @@ export default function CVForm() {
                 <Eye className="h-3.5 w-3.5" />
                 Live Preview
                 </span>
-                <span className="text-[11px] font-normal">Scroll preview untuk melihat halaman penuh</span>
+                <span className="text-[11px] font-normal">Scroll to see the full page</span>
               </div>
               <div className="max-h-[calc(100vh-150px)] overflow-y-auto overflow-x-hidden bg-slate-100 p-4 overscroll-contain">
                 <div
@@ -1156,7 +1207,7 @@ export default function CVForm() {
                 </div>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-2">Preview diperbarui otomatis saat data berubah</p>
+            <p className="text-xs text-muted-foreground text-center mt-2">Preview updates automatically as you type</p>
           </div>
 
         </div>{/* end flex split */}

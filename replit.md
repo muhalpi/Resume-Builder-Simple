@@ -21,12 +21,15 @@ pnpm workspace monorepo using TypeScript. This is a **CV ATS Generator** web app
 ## Features
 
 - Multi-step CV builder form (Personal Info, Summary & Skills, Work Experience, Education, Extra Sections, Review)
-- ATS-optimized CV preview with clean HTML output
-- Custom extra CV sections for certifications, awards, organizations, projects, training, publications, and other ATS-relevant items
+- ATS-optimized CV preview with clean HTML output — section headings in English ("Work Experience", "Education", "Skills", etc.)
+- ATS Readiness Score in the Review step — checklist of 11 key completeness checks with visual progress bar
+- Custom extra CV sections for certifications, awards, organizations, projects, training, publications, etc.
+- Live side-by-side CV preview that updates as the user types
 - Print/Download as PDF via browser print
 - Save and manage multiple CVs
 - Edit existing CVs
 - Free to use, no account required
+- Fully English UI (no mixed-language strings)
 
 ## Key Commands
 

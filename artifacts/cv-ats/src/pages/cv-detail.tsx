@@ -58,7 +58,7 @@ export default function CVDetail() {
                 <div>
                   <h1 className="text-2xl font-bold tracking-tight text-primary">CV Preview</h1>
                   <p className="text-sm text-muted-foreground">
-                    Simpan sebagai PDF dari dokumen CV asli, bukan dari halaman aplikasi.
+                    Use "Save as PDF" to get a clean document output, not the full app page.
                   </p>
                 </div>
               </div>
@@ -82,9 +82,9 @@ export default function CVDetail() {
           <div className="flex items-center justify-between border-b bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-2 font-medium">
               <Download className="h-4 w-4" />
-              Dokumen CV
+              CV Document
             </span>
-            <span>Gunakan tombol “Save as PDF” agar hasilnya rapi seperti dokumen.</span>
+            <span>Use the “Save as PDF” button for a clean document layout.</span>
           </div>
           {isLoading ? (
             <div className="p-8 sm:p-12 space-y-6">
