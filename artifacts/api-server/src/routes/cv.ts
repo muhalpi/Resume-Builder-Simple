@@ -39,21 +39,31 @@ router.post("/cv", async (req, res): Promise<void> => {
   }
 
   const data = parsed.data;
-  const [cv] = await db.insert(cvsTable).values({
-    fullName: data.fullName,
-    email: data.email,
-    phone: data.phone ?? null,
-    location: data.location ?? null,
-    jobTitle: data.jobTitle,
-    summary: data.summary,
-    skills: data.skills,
-    languages: data.languages,
-    workExperience: data.workExperience ?? [],
-    education: data.education ?? [],
-    extraSections: data.extraSections ?? [],
-    linkedinUrl: data.linkedinUrl ?? null,
-    portfolioUrl: data.portfolioUrl ?? null,
-  }).returning();
+  let cv: typeof cvsTable.$inferSelect;
+  try {
+    const [inserted] = await db.insert(cvsTable).values({
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.phone ?? null,
+      location: data.location ?? null,
+      jobTitle: data.jobTitle,
+      summary: data.summary,
+      skills: data.skills,
+      languages: data.languages,
+      workExperience: data.workExperience ?? [],
+      education: data.education ?? [],
+      extraSections: data.extraSections ?? [],
+      linkedinUrl: data.linkedinUrl ?? null,
+      portfolioUrl: data.portfolioUrl ?? null,
+    }).returning();
+    cv = inserted;
+  } catch (err: unknown) {
+    const cause = err instanceof Error ? (err.cause instanceof Error ? err.cause.message : String(err.cause)) : String(err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[CV INSERT ERROR]", msg, "| cause:", cause);
+    res.status(500).json({ error: "Failed to save CV", detail: cause || msg });
+    return;
+  }
 
   res.status(201).json(serializeCV(cv));
 });
