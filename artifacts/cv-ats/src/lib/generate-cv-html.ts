@@ -26,6 +26,7 @@ export interface PreviewData {
   linkedinUrl?: string | null;
   portfolioUrl?: string | null;
   cvLanguage?: string | null;
+  cvTheme?: string | null;
   workExperience: {
     company: string;
     position: string;
@@ -73,19 +74,37 @@ const CV_LABELS = {
   },
 } as const;
 
-const CV_STYLES = `
+type CVLanguage = "en" | "id";
+type CVTheme = "blue" | "black";
+
+function parseCvStyle(data: Pick<PreviewData, "cvLanguage" | "cvTheme">): { lang: CVLanguage; theme: CVTheme } {
+  const rawLanguage = (data.cvLanguage ?? "en").toLowerCase();
+  const [languagePart, themeFromLanguage] = rawLanguage.split(":");
+  return {
+    lang: languagePart === "id" ? "id" : "en",
+    theme: data.cvTheme === "black" || themeFromLanguage === "black" ? "black" : "blue",
+  };
+}
+
+function getCvStyles(theme: CVTheme): string {
+  const accent = theme === "black" ? "#111111" : "#1e40af";
+  const accentSoft = theme === "black" ? "#111111" : "#3b82f6";
+  const accentBorder = theme === "black" ? "#d4d4d8" : "#bfdbfe";
+  const tagBackground = theme === "black" ? "#f4f4f5" : "#eff6ff";
+
+  return `
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { background: #f1f5f9; }
   body { font-family: 'Arial', sans-serif; font-size: 11pt; color: #1a1a2e; background: #f1f5f9; line-height: 1.5; }
   .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 16mm 15mm; background: white; }
-  .header { border-bottom: 2px solid #1e40af; padding-bottom: 16px; margin-bottom: 24px; }
-  .name { font-size: 24pt; font-weight: 700; color: #1e40af; letter-spacing: -0.5px; }
-  .job-title { font-size: 13pt; color: #3b82f6; font-weight: 500; margin-top: 2px; }
+  .header { border-bottom: 2px solid ${accent}; padding-bottom: 16px; margin-bottom: 24px; }
+  .name { font-size: 24pt; font-weight: 700; color: ${accent}; letter-spacing: -0.5px; }
+  .job-title { font-size: 13pt; color: ${accentSoft}; font-weight: 500; margin-top: 2px; }
   .contact { margin-top: 8px; font-size: 9.5pt; color: #475569; display: flex; flex-wrap: wrap; gap: 8px 16px; }
   .contact a { color: #475569; text-decoration: none; }
   .contact-link { color: #475569 !important; }
   section { margin-bottom: 20px; }
-  h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 1px; color: #1e40af; border-bottom: 1px solid #bfdbfe; padding-bottom: 4px; margin-bottom: 12px; font-weight: 700; }
+  h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 1px; color: ${accent}; border-bottom: 1px solid ${accentBorder}; padding-bottom: 4px; margin-bottom: 12px; font-weight: 700; }
   .summary { color: #374151; font-size: 10.5pt; line-height: 1.6; }
   .entry { margin-bottom: 12px; }
   .entry-header { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -96,7 +115,7 @@ const CV_STYLES = `
   .entry-desc { margin: 6px 0 0 0; padding-left: 18px; font-size: 10pt; color: #374151; line-height: 1.5; list-style-type: disc; }
   .entry-desc li { margin-bottom: 4px; display: list-item; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 2px 8px; font-size: 9.5pt; color: #1e40af; }
+  .tag { background: ${tagBackground}; border: 1px solid ${accentBorder}; border-radius: 4px; padding: 2px 8px; font-size: 9.5pt; color: ${accent}; }
   @page { size: A4; margin: 16mm 15mm; }
   @media screen {
     body { padding: 24px 0; }
@@ -112,10 +131,12 @@ const CV_STYLES = `
     .tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 `;
+}
 
 export function generateCVPreviewHtml(data: PreviewData): string {
-  const lang = (data.cvLanguage === "id" ? "id" : "en") as "en" | "id";
+  const { lang, theme } = parseCvStyle(data);
   const labels = CV_LABELS[lang];
+  const cvStyles = getCvStyles(theme);
 
   const skills = data.skills.split(',').map(s => s.trim()).filter(Boolean);
   const languagesList = data.languages ? data.languages.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -195,7 +216,7 @@ export function generateCVPreviewHtml(data: PreviewData): string {
 <html lang="${lang}">
 <head>
 <meta charset="UTF-8">
-<style>${CV_STYLES}</style>
+<style>${cvStyles}</style>
 </head>
 <body>
 <div class="page">

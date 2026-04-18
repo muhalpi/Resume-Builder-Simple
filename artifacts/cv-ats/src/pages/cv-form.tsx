@@ -18,6 +18,22 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/lib/i18n";
 import type { Translations } from "@/lib/i18n";
 
+type CVLanguageOption = "en" | "id";
+type CVThemeOption = "blue" | "black";
+
+function parseCvStyleValue(cvLanguageValue?: string | null): { cvLanguage: CVLanguageOption; cvTheme: CVThemeOption } {
+  const raw = (cvLanguageValue ?? "en").toLowerCase();
+  const [languagePart, themePart] = raw.split(":");
+  return {
+    cvLanguage: languagePart === "id" ? "id" : "en",
+    cvTheme: themePart === "black" ? "black" : "blue",
+  };
+}
+
+function composeCvStyleValue(cvLanguage: CVLanguageOption, cvTheme: CVThemeOption): string {
+  return cvTheme === "black" ? `${cvLanguage}:black` : cvLanguage;
+}
+
 function makeSchema(v: Translations["cvForm"]["validation"]) {
   const workExperienceSchema = z.object({
     company: z.string().min(1, v.companyRequired),
@@ -68,6 +84,7 @@ function makeSchema(v: Translations["cvForm"]["validation"]) {
       try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
     }, v.invalidUrl),
     cvLanguage: z.enum(["en", "id"]).default("en"),
+    cvTheme: z.enum(["blue", "black"]).default("blue"),
     workExperience: z.array(workExperienceSchema),
     education: z.array(educationSchema),
     extraSections: z.array(extraSectionSchema),
@@ -257,6 +274,7 @@ export default function CVForm() {
       linkedinUrl: "",
       portfolioUrl: "",
       cvLanguage: "en" as "en" | "id",
+      cvTheme: "blue" as "blue" | "black",
       workExperience: [],
       education: [],
       extraSections: [],
@@ -280,6 +298,7 @@ export default function CVForm() {
 
   useEffect(() => {
     if (initialData) {
+      const { cvLanguage, cvTheme } = parseCvStyleValue(initialData.cvLanguage);
       form.reset({
         fullName: initialData.fullName || "",
         email: initialData.email || "",
@@ -291,7 +310,8 @@ export default function CVForm() {
         languages: initialData.languages ? initialData.languages.join(", ") : "",
         linkedinUrl: initialData.linkedinUrl || "",
         portfolioUrl: initialData.portfolioUrl || "",
-        cvLanguage: ((initialData.cvLanguage === "id" ? "id" : "en") as "en" | "id"),
+        cvLanguage,
+        cvTheme,
         workExperience: initialData.workExperience || [],
         education: initialData.education || [],
         extraSections: (initialData.extraSections as { sectionTitle: string; entries: { title: string; subtitle?: string | null; date?: string | null; description?: string | null }[] }[]) || [],
@@ -311,7 +331,7 @@ export default function CVForm() {
       portfolioUrl: normalizeUrl(values.portfolioUrl),
       skills: values.skills.split(",").map(s => s.trim()).filter(Boolean),
       languages: values.languages ? values.languages.split(",").map(s => s.trim()).filter(Boolean) : [],
-      cvLanguage: values.cvLanguage,
+      cvLanguage: composeCvStyleValue(values.cvLanguage, values.cvTheme),
     };
 
     try {
@@ -335,7 +355,7 @@ export default function CVForm() {
 
   const validateStep = async (stepIndex: number) => {
     let fieldsToValidate: (keyof FormValues)[] = [];
-    if (stepIndex === 0) fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl", "cvLanguage"];
+    if (stepIndex === 0) fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl", "cvLanguage", "cvTheme"];
     else if (stepIndex === 1) fieldsToValidate = ["summary", "skills", "languages"];
     else if (stepIndex === 2) fieldsToValidate = ["workExperience"];
     else if (stepIndex === 3) fieldsToValidate = ["education"];
@@ -367,7 +387,7 @@ export default function CVForm() {
     [
       watchedValues.fullName, watchedValues.email, watchedValues.phone, watchedValues.location,
       watchedValues.jobTitle, watchedValues.summary, watchedValues.skills, watchedValues.languages,
-      watchedValues.linkedinUrl, watchedValues.portfolioUrl, watchedValues.cvLanguage,
+      watchedValues.linkedinUrl, watchedValues.portfolioUrl, watchedValues.cvLanguage, watchedValues.cvTheme,
       JSON.stringify(watchedValues.workExperience), JSON.stringify(watchedValues.education),
       JSON.stringify(watchedValues.extraSections),
     ]
@@ -644,6 +664,44 @@ export default function CVForm() {
                               <p className="text-sm font-semibold">{f.cvLanguageId}</p>
                               <p className="text-xs opacity-70">Pengalaman Kerja · Pendidikan · Keahlian</p>
                             </div>
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="cvTheme"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{f.cvThemeLabel}</FormLabel>
+                        <FormDescription>{f.cvThemeHint}</FormDescription>
+                        <div className="flex gap-3 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => field.onChange("blue")}
+                            className={`flex-1 rounded-lg border-2 p-3 text-left transition-colors cursor-pointer ${
+                              field.value === "blue"
+                                ? "border-primary bg-primary/5 text-primary"
+                                : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                            }`}
+                          >
+                            <p className="text-sm font-semibold">{f.cvThemeBlue}</p>
+                            <p className="text-xs opacity-70">{language === "id" ? "Aksen biru klasik" : "Classic blue accents"}</p>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => field.onChange("black")}
+                            className={`flex-1 rounded-lg border-2 p-3 text-left transition-colors cursor-pointer ${
+                              field.value === "black"
+                                ? "border-primary bg-primary/5 text-primary"
+                                : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                            }`}
+                          >
+                            <p className="text-sm font-semibold">{f.cvThemeBlack}</p>
+                            <p className="text-xs opacity-70">{language === "id" ? "Gaya hitam netral" : "Neutral black style"}</p>
                           </button>
                         </div>
                         <FormMessage />
