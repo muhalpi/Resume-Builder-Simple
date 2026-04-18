@@ -55,6 +55,7 @@ router.post("/cv", async (req, res): Promise<void> => {
       extraSections: data.extraSections ?? [],
       linkedinUrl: data.linkedinUrl ?? null,
       portfolioUrl: data.portfolioUrl ?? null,
+      profilePhoto: data.profilePhoto ?? null,
       cvLanguage: data.cvLanguage ?? "en",
     }).returning();
     cv = inserted;
@@ -118,6 +119,7 @@ router.patch("/cv/:id", async (req, res): Promise<void> => {
   if (data.extraSections !== undefined) updateData.extraSections = data.extraSections ?? [];
   if (data.linkedinUrl !== undefined) updateData.linkedinUrl = data.linkedinUrl;
   if (data.portfolioUrl !== undefined) updateData.portfolioUrl = data.portfolioUrl;
+  if (data.profilePhoto !== undefined) updateData.profilePhoto = data.profilePhoto;
   if (data.cvLanguage !== undefined) updateData.cvLanguage = data.cvLanguage;
 
   const [cv] = await db
@@ -300,9 +302,12 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
   html { background: #f1f5f9; }
   body { font-family: 'Arial', sans-serif; font-size: 11pt; color: #1a1a2e; background: #f1f5f9; line-height: 1.5; }
   .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 16mm 15mm; background: white; }
-  .header { border-bottom: 2px solid ${accent}; padding-bottom: 16px; margin-bottom: 24px; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; border-bottom: 2px solid ${accent}; padding-bottom: 16px; margin-bottom: 24px; }
+  .header-main { flex: 1; min-width: 0; }
   .name { font-size: 24pt; font-weight: 700; color: ${accent}; letter-spacing: -0.5px; }
   .job-title { font-size: 13pt; color: ${accentSoft}; font-weight: 500; margin-top: 2px; }
+  .photo-frame { width: 30mm; aspect-ratio: 3 / 4; border: 1px solid ${accentBorder}; border-radius: 4px; overflow: hidden; background: #f8fafc; flex-shrink: 0; }
+  .photo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
   .contact { margin-top: 8px; font-size: 9.5pt; color: #475569; display: flex; flex-wrap: wrap; gap: 8px 16px; }
   .contact a { color: #475569; text-decoration: none; }
   .contact-link { color: #475569 !important; }
@@ -341,14 +346,17 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
 <body>
 <div class="page">
   <div class="header">
-    <div class="name">${escapeHtml(cv.fullName)}</div>
-    <div class="job-title">${escapeHtml(cv.jobTitle)}</div>
-    <div class="contact">
-      <span>${escapeHtml(cv.email)}</span>
-      ${cv.phone ? `<span>${escapeHtml(cv.phone)}</span>` : ''}
-      ${cv.location ? `<span>${escapeHtml(cv.location)}</span>` : ''}
-      ${linksHtml}
+    <div class="header-main">
+      <div class="name">${escapeHtml(cv.fullName)}</div>
+      <div class="job-title">${escapeHtml(cv.jobTitle)}</div>
+      <div class="contact">
+        <span>${escapeHtml(cv.email)}</span>
+        ${cv.phone ? `<span>${escapeHtml(cv.phone)}</span>` : ''}
+        ${cv.location ? `<span>${escapeHtml(cv.location)}</span>` : ''}
+        ${linksHtml}
+      </div>
     </div>
+    ${cv.profilePhoto ? `<div class="photo-frame"><img src="${escapeHtml(cv.profilePhoto)}" alt="Profile Photo" /></div>` : ''}
   </div>
 
   ${cv.summary ? `

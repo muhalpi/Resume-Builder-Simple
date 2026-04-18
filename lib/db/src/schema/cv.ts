@@ -17,6 +17,7 @@ export const cvsTable = pgTable("cvs", {
   extraSections: jsonb("extra_sections").notNull().default([]).$type<ExtraSection[]>(),
   linkedinUrl: text("linkedin_url"),
   portfolioUrl: text("portfolio_url"),
+  profilePhoto: text("profile_photo"),
   cvLanguage: text("cv_language").default("en"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),

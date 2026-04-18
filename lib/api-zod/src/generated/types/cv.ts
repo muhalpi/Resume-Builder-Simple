@@ -29,6 +29,8 @@ export interface Cv {
   /** @nullable */
   portfolioUrl?: string | null;
   /** @nullable */
+  profilePhoto?: string | null;
+  /** @nullable */
   cvLanguage?: string | null;
   createdAt: string;
   updatedAt: string;

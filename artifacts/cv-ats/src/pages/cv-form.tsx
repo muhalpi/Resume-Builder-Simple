@@ -34,6 +34,8 @@ function composeCvStyleValue(cvLanguage: CVLanguageOption, cvTheme: CVThemeOptio
   return cvTheme === "black" ? `${cvLanguage}:black` : cvLanguage;
 }
 
+const MAX_PROFILE_PHOTO_SIZE_BYTES = 2 * 1024 * 1024;
+
 function makeSchema(v: Translations["cvForm"]["validation"]) {
   const workExperienceSchema = z.object({
     company: z.string().min(1, v.companyRequired),
@@ -83,6 +85,7 @@ function makeSchema(v: Translations["cvForm"]["validation"]) {
       if (!val) return true;
       try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
     }, v.invalidUrl),
+    profilePhoto: z.string().optional().nullable(),
     cvLanguage: z.enum(["en", "id"]).default("en"),
     cvTheme: z.enum(["blue", "black"]).default("blue"),
     workExperience: z.array(workExperienceSchema),
@@ -273,6 +276,7 @@ export default function CVForm() {
       languages: "",
       linkedinUrl: "",
       portfolioUrl: "",
+      profilePhoto: "",
       cvLanguage: "en" as "en" | "id",
       cvTheme: "blue" as "blue" | "black",
       workExperience: [],
@@ -310,6 +314,7 @@ export default function CVForm() {
         languages: initialData.languages ? initialData.languages.join(", ") : "",
         linkedinUrl: initialData.linkedinUrl || "",
         portfolioUrl: initialData.portfolioUrl || "",
+        profilePhoto: initialData.profilePhoto || "",
         cvLanguage,
         cvTheme,
         workExperience: initialData.workExperience || [],
@@ -324,11 +329,53 @@ export default function CVForm() {
     return /^https?:\/\//i.test(url) ? url : `https://${url}`;
   };
 
+  const fileToDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+      reader.onerror = () => reject(new Error("Failed to read image"));
+      reader.readAsDataURL(file);
+    });
+
+  const handleProfilePhotoUpload = async (file: File | undefined, onChange: (value: string) => void) => {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: language === "id" ? "Format foto tidak valid" : "Invalid photo format",
+        description: language === "id" ? "Pilih file gambar (PNG, JPG, atau WEBP)." : "Please choose an image file (PNG, JPG, or WEBP).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > MAX_PROFILE_PHOTO_SIZE_BYTES) {
+      toast({
+        title: language === "id" ? "Ukuran foto terlalu besar" : "Photo file is too large",
+        description: language === "id" ? "Maksimum ukuran file adalah 2 MB." : "Maximum allowed size is 2 MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      onChange(dataUrl);
+    } catch {
+      toast({
+        title: language === "id" ? "Gagal membaca foto" : "Failed to read photo",
+        description: language === "id" ? "Coba unggah ulang dengan file lain." : "Please try uploading another file.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const onSubmit = async (values: FormValues) => {
     const apiData = {
       ...values,
       linkedinUrl: normalizeUrl(values.linkedinUrl),
       portfolioUrl: normalizeUrl(values.portfolioUrl),
+      profilePhoto: values.profilePhoto || null,
       skills: values.skills.split(",").map(s => s.trim()).filter(Boolean),
       languages: values.languages ? values.languages.split(",").map(s => s.trim()).filter(Boolean) : [],
       cvLanguage: composeCvStyleValue(values.cvLanguage, values.cvTheme),
@@ -355,7 +402,7 @@ export default function CVForm() {
 
   const validateStep = async (stepIndex: number) => {
     let fieldsToValidate: (keyof FormValues)[] = [];
-    if (stepIndex === 0) fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl", "cvLanguage", "cvTheme"];
+    if (stepIndex === 0) fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl", "profilePhoto", "cvLanguage", "cvTheme"];
     else if (stepIndex === 1) fieldsToValidate = ["summary", "skills", "languages"];
     else if (stepIndex === 2) fieldsToValidate = ["workExperience"];
     else if (stepIndex === 3) fieldsToValidate = ["education"];
@@ -387,7 +434,7 @@ export default function CVForm() {
     [
       watchedValues.fullName, watchedValues.email, watchedValues.phone, watchedValues.location,
       watchedValues.jobTitle, watchedValues.summary, watchedValues.skills, watchedValues.languages,
-      watchedValues.linkedinUrl, watchedValues.portfolioUrl, watchedValues.cvLanguage, watchedValues.cvTheme,
+      watchedValues.linkedinUrl, watchedValues.portfolioUrl, watchedValues.profilePhoto, watchedValues.cvLanguage, watchedValues.cvTheme,
       JSON.stringify(watchedValues.workExperience), JSON.stringify(watchedValues.education),
       JSON.stringify(watchedValues.extraSections),
     ]
@@ -622,6 +669,45 @@ export default function CVForm() {
                         <FormControl>
                           <Input placeholder="https://johndoe.com" {...field} value={field.value || ""} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="profilePhoto"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{f.profilePhoto}</FormLabel>
+                        <FormDescription>{f.profilePhotoHint}</FormDescription>
+                        <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start">
+                          <div className="h-32 w-24 overflow-hidden rounded-md border bg-muted/30 shrink-0">
+                            {field.value ? (
+                              <img src={field.value} alt="Profile preview" className="h-full w-full object-cover object-center" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-xs font-medium text-muted-foreground">
+                                3 x 4
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Input
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/webp"
+                              onChange={async (event) => {
+                                await handleProfilePhotoUpload(event.target.files?.[0], field.onChange);
+                                event.currentTarget.value = "";
+                              }}
+                            />
+                            <p className="text-xs text-muted-foreground">{f.profilePhotoSizeHint}</p>
+                            {field.value ? (
+                              <Button type="button" variant="outline" onClick={() => field.onChange("")}>
+                                {f.removePhoto}
+                              </Button>
+                            ) : null}
+                          </div>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}

@@ -318,6 +318,8 @@ components:
           type: ["string", "null"]
         portfolioUrl:
           type: ["string", "null"]
+        profilePhoto:
+          type: ["string", "null"]
         cvLanguage:
           type: ["string", "null"]
         createdAt:
@@ -377,6 +379,8 @@ components:
           type: ["string", "null"]
         portfolioUrl:
           type: ["string", "null"]
+        profilePhoto:
+          type: ["string", "null"]
         cvLanguage:
           type: ["string", "null"]
       required:
@@ -427,6 +431,8 @@ components:
         linkedinUrl:
           type: ["string", "null"]
         portfolioUrl:
+          type: ["string", "null"]
+        profilePhoto:
           type: ["string", "null"]
         cvLanguage:
           type: ["string", "null"]
