@@ -79,6 +79,8 @@ export interface Cv {
   /** @nullable */
   portfolioUrl?: string | null;
   /** @nullable */
+  profilePhoto?: string | null;
+  /** @nullable */
   cvLanguage?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -104,6 +106,8 @@ export interface CreateCVBody {
   /** @nullable */
   portfolioUrl?: string | null;
   /** @nullable */
+  profilePhoto?: string | null;
+  /** @nullable */
   cvLanguage?: string | null;
 }
 
@@ -126,6 +130,8 @@ export interface UpdateCVBody {
   linkedinUrl?: string | null;
   /** @nullable */
   portfolioUrl?: string | null;
+  /** @nullable */
+  profilePhoto?: string | null;
   /** @nullable */
   cvLanguage?: string | null;
 }

@@ -25,6 +25,7 @@ export interface PreviewData {
   languages?: string;
   linkedinUrl?: string | null;
   portfolioUrl?: string | null;
+  profilePhoto?: string | null;
   cvLanguage?: string | null;
   cvTheme?: string | null;
   workExperience: {
@@ -97,9 +98,12 @@ function getCvStyles(theme: CVTheme): string {
   html { background: #f1f5f9; }
   body { font-family: 'Arial', sans-serif; font-size: 11pt; color: #1a1a2e; background: #f1f5f9; line-height: 1.5; }
   .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 16mm 15mm; background: white; }
-  .header { border-bottom: 2px solid ${accent}; padding-bottom: 16px; margin-bottom: 24px; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; border-bottom: 2px solid ${accent}; padding-bottom: 16px; margin-bottom: 24px; }
+  .header-main { flex: 1; min-width: 0; }
   .name { font-size: 24pt; font-weight: 700; color: ${accent}; letter-spacing: -0.5px; }
   .job-title { font-size: 13pt; color: ${accentSoft}; font-weight: 500; margin-top: 2px; }
+  .photo-frame { width: 30mm; aspect-ratio: 3 / 4; border: 1px solid ${accentBorder}; border-radius: 4px; overflow: hidden; background: #f8fafc; flex-shrink: 0; }
+  .photo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
   .contact { margin-top: 8px; font-size: 9.5pt; color: #475569; display: flex; flex-wrap: wrap; gap: 8px 16px; }
   .contact a { color: #475569; text-decoration: none; }
   .contact-link { color: #475569 !important; }
@@ -221,14 +225,17 @@ export function generateCVPreviewHtml(data: PreviewData): string {
 <body>
 <div class="page">
   <div class="header">
-    <div class="name">${escapeHtml(data.fullName || 'Full Name')}</div>
-    <div class="job-title">${escapeHtml(data.jobTitle || 'Job Title')}</div>
-    <div class="contact">
-      <span>${escapeHtml(data.email || '')}</span>
-      ${data.phone ? `<span>${escapeHtml(data.phone)}</span>` : ''}
-      ${data.location ? `<span>${escapeHtml(data.location)}</span>` : ''}
-      ${linksHtml}
+    <div class="header-main">
+      <div class="name">${escapeHtml(data.fullName || 'Full Name')}</div>
+      <div class="job-title">${escapeHtml(data.jobTitle || 'Job Title')}</div>
+      <div class="contact">
+        <span>${escapeHtml(data.email || '')}</span>
+        ${data.phone ? `<span>${escapeHtml(data.phone)}</span>` : ''}
+        ${data.location ? `<span>${escapeHtml(data.location)}</span>` : ''}
+        ${linksHtml}
+      </div>
     </div>
+    ${data.profilePhoto ? `<div class="photo-frame"><img src="${escapeHtml(data.profilePhoto)}" alt="Profile Photo" /></div>` : ''}
   </div>
 
   ${data.summary ? `

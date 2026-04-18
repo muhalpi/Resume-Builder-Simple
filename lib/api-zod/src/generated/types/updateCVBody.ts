@@ -29,5 +29,7 @@ export interface UpdateCVBody {
   /** @nullable */
   portfolioUrl?: string | null;
   /** @nullable */
+  profilePhoto?: string | null;
+  /** @nullable */
   cvLanguage?: string | null;
 }
